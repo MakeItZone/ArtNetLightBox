@@ -4,9 +4,10 @@
 
 // declarations for Ethernet/WiFi
 
-int universe = 1;
-uint8_t data [4] = {50, 25, 10, 89};
-uint8_t size = 4;
+uint32_t universe = 1;
+const uint16_t size = 512;
+uint8_t data [size];// = {50, 25, 10, 89};
+uint8_t value = 0;
 
 const char* ssid = "MakeItZone";
 const char* pwd = "26EBF7gv5tfV";
@@ -27,14 +28,17 @@ void setup()
     while (WiFi.status() != WL_CONNECTED) { Serial.print("."); delay(500); }
     Serial.print("WiFi connected, IP = "); Serial.println(WiFi.localIP());
 
-    artnet.begin("192.168.1.180"); //destination ip
+    artnet.begin("192.168.1.102"); //destination ip
     Serial.println("enter value for transmission");
 }
 
 void loop()
 {
+    value = millis()%256;
+    memset(data, value, size);
     // change send data as you want
-    uint8_t data [4] = {Serial.read(), 25, 10, 89};
+    //data[1]++; //= data[1] + 1;
+    Serial.println(data[1]);
 
     artnet.set(universe, data, size);
     artnet.streaming(); // automatically send set data in 40fps

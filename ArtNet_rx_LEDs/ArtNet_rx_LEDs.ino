@@ -1,24 +1,24 @@
 #include <SoftwareSerial.h>
 #include <Artnet.h>
 
-int ledOnboard = 0;
-int Rled = 12; // red led pin
-int Rin = 2; //red intake channel
-int Gled = 13; // green led pin
-int Gin = 3; //green intake channel
-int Bled = 14; // blue led pin
-int Bin = 4; //blue intake channel
+const int ledOnboard = 0;
+const int Rled = 12; // red led pin
+const int Rin = 2; //red intake channel
+const int Gled = 13; // green led pin
+const int Gin = 3; //green intake channel
+const int Bled = 14; // blue led pin
+const int Bin = 4; //blue intake channel
 
 // WiFi stuff
 const char* ssid = "MakeItZone";
 const char* pwd = "26EBF7gv5tfV";
-const IPAddress ip(192, 168, 1, 201);
+const IPAddress ip(192, 168, 1, 201); //the ip that this is using
 const IPAddress gateway(192, 168, 1, 1);
 const IPAddress subnet(255, 255, 255, 0);
 
 ArtnetReceiver artnet;
-uint32_t universe1 = 1;
-uint32_t universe2 = 2;
+const uint32_t universe1 = 1;
+//const uint32_t universe2 = 2;
 
 void callback(uint8_t* data, uint16_t size)
 {
@@ -31,6 +31,7 @@ void setup()
     pinMode (Rled, OUTPUT);
     pinMode (Gled, OUTPUT);
     pinMode (Bled, OUTPUT);
+    analogWriteRange(255);
     
     Serial.begin(115200);
 
@@ -49,12 +50,12 @@ void setup()
         Serial.print(universe1);
         Serial.println(") = ");
         
-        analogWrite(ledOnboard, data[1]); //write to LEDs
-        analogWrite(Rled, data[2]);
-        analogWrite(Gled, data[3]);
-        analogWrite(Bled, data[4]);
+        analogWrite(ledOnboard, data[0]); //write to LEDs
+        analogWrite(Rled, data[1]);
+        analogWrite(Gled, data[2]);
+        analogWrite(Bled, data[3]);
         
-        for (size_t i = 0; i < size; ++i)
+        for (size_t i = 0; i < 4; ++i)
         {
             Serial.print(i); Serial.print(","); Serial.print(data[i]); Serial.print(",");
         }
@@ -62,7 +63,7 @@ void setup()
     });
 
     // you can also use pre-defined callbacks
-    artnet.subscribe(universe2, callback);
+    //artnet.subscribe(universe2, callback);
 }
 
 void loop()

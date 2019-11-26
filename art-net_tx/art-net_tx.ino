@@ -11,7 +11,7 @@ uint8_t value = 0;
 
 const char* ssid = "MakeItZone";
 const char* pwd = "26EBF7gv5tfV";
-const IPAddress ip(192, 168, 1, 200);
+const IPAddress ip(192, 168, 1, 102);
 const IPAddress gateway(192, 168, 1, 1);
 const IPAddress subnet(255, 255, 255, 0);
 
@@ -28,7 +28,7 @@ void setup()
     while (WiFi.status() != WL_CONNECTED) { Serial.print("."); delay(500); }
     Serial.print("WiFi connected, IP = "); Serial.println(WiFi.localIP());
 
-    artnet.begin("192.168.1.102"); //destination ip
+    artnet.begin("192.168.1.180"); //destination ip
     Serial.println("enter value for transmission");
 }
 

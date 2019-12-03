@@ -1,20 +1,24 @@
+#include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library (you most likely already have this in your sketch)
+
+#include <DNSServer.h>            //Local DNS Server used for redirecting all requests to the configuration portal
+#include <ESP8266WebServer.h>     //Local WebServer used to serve the configuration portal
+#include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager WiFi Configuration Magic
+
 #include <SoftwareSerial.h>
+
 #include <Artnet.h>
 
-const int ledOnboard = 0;
-const int Rled = 12; // red led pin
+const int ledOnboard = 0; //onboard LED pin
+const int ledOnboardIn = 1; //onboard LED intake channel
+const int Rled = 12; //red led pin
 const int Rin = 2; //red intake channel
-const int Gled = 13; // green led pin
+const int Gled = 13; //green led pin
 const int Gin = 3; //green intake channel
-const int Bled = 14; // blue led pin
+const int Bled = 14; //blue led pin
 const int Bin = 4; //blue intake channel
 
-// WiFi stuff
-const char* ssid = "MakeItZone";
-const char* pwd = "26EBF7gv5tfV";
-const IPAddress ip(192, 168, 1, 201); //the ip that this is using
-const IPAddress gateway(192, 168, 1, 1);
-const IPAddress subnet(255, 255, 255, 0);
+// IP stuffs
+IPAddress ip;
 
 ArtnetReceiver artnet;
 const uint32_t universe1 = 1;
@@ -36,10 +40,11 @@ void setup()
     Serial.begin(115200);
 
     // WiFi stuffs
-    WiFi.begin(ssid, pwd);
-    WiFi.config(ip, gateway, subnet);
-    while (WiFi.status() != WL_CONNECTED) { Serial.print("."); delay(500); }
-    Serial.print("WiFi connected, IP = "); Serial.println(WiFi.localIP());
+    WiFiManager wifiManager;
+    wifiManager.resetSettings(); //reset
+    wifiManager.autoConnect();
+    ip = WiFi.localIP();
+    Serial.println(ip);
 
     artnet.begin();
 
@@ -55,14 +60,14 @@ void setup()
         analogWrite(Gled, data[2]);
         analogWrite(Bled, data[3]);
         
-        for (size_t i = 0; i < 4; ++i)
+        for (size_t i = 0; i < 4; ++i) //the 4 on this line is how many channels are sent to the serial monitor, you can change it to be whatever you want, but if it is too big everything will grind to a halt.
         {
             Serial.print(i); Serial.print(","); Serial.print(data[i]); Serial.print(",");
         }
         Serial.println();
     });
 
-    // you can also use pre-defined callbacks
+    //you can also use pre-defined callbacks
     //artnet.subscribe(universe2, callback);
 }
 

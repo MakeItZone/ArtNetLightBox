@@ -1,10 +1,11 @@
-#include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library (you most likely already have this in your sketch)
+#include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library
 
 #include <DNSServer.h>            //Local DNS Server used for redirecting all requests to the configuration portal
 #include <ESP8266WebServer.h>     //Local WebServer used to serve the configuration portal
 #include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager WiFi Configuration Magic
 
 #include <SoftwareSerial.h>
+#include <EEPROM.h>
 
 #include <Artnet.h>
 
@@ -41,7 +42,17 @@ void setup()
 
     // WiFi stuffs
     WiFiManager wifiManager;
-    wifiManager.resetSettings(); //reset
+
+    if (EEPROM.read(1) == 0) {//upon double reset, this will reset the wifi settings.
+      wifiManager.resetSettings();
+      EEPROM.write(1, 1);
+    }
+    else {
+      EEPROM.write(1, 0);
+      delay(2000);
+      EEPROM.write(1, 1);
+    }
+    
     wifiManager.autoConnect();
     ip = WiFi.localIP();
     Serial.println(ip);

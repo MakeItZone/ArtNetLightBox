@@ -49,7 +49,7 @@ void setup()
     }
     else {
       EEPROM.write(1, 0);
-      delay(2000);
+      delay(2000); //maximum time between resets
       EEPROM.write(1, 1);
     }
     
@@ -66,10 +66,10 @@ void setup()
         Serial.print(universe1);
         Serial.println(") = ");
         
-        analogWrite(ledOnboard, data[0]); //write to LEDs
-        analogWrite(Rled, data[1]);
-        analogWrite(Gled, data[2]);
-        analogWrite(Bled, data[3]);
+        analogWrite(ledOnboard, data[ledOnboardIn]); //write to LEDs
+        analogWrite(Rled, data[Rin]);
+        analogWrite(Gled, data[Gin]);
+        analogWrite(Bled, data[Bin]);
         
         for (size_t i = 0; i < 4; ++i) //the 4 on this line is how many channels are sent to the serial monitor, you can change it to be whatever you want, but if it is too big everything will grind to a halt.
         {

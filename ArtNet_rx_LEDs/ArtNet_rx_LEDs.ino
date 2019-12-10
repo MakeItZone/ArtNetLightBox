@@ -18,6 +18,8 @@ const int Gin = 3; //green intake channel
 const int Bled = 14; //blue led pin
 const int Bin = 4; //blue intake channel
 
+const int resetSwitch = 5;
+
 // IP stuffs
 IPAddress ip;
 
@@ -32,6 +34,7 @@ void callback(uint8_t* data, uint16_t size)
 
 void setup()
 {
+    pinMode (resetSwitch, INPUT_PULLUP);
     pinMode (ledOnboard, OUTPUT); //led output declarations
     pinMode (Rled, OUTPUT);
     pinMode (Gled, OUTPUT);
@@ -39,18 +42,20 @@ void setup()
     analogWriteRange(255);
     
     Serial.begin(115200);
+    Serial.println();
 
     // WiFi stuffs
     WiFiManager wifiManager;
-
-    if (EEPROM.read(1) == 0) {//upon double reset, this will reset the wifi settings.
+    
+    if(digitalRead(resetSwitch) == LOW) { //reset
+      bool ledState = true;
+      Serial.println("resetting wifi...");
+      for(int i = 0; i < 10; i++) {
+        digitalWrite(Gled, ledState);
+        ledState = !ledState;
+        delay(500);
+      }
       wifiManager.resetSettings();
-      EEPROM.write(1, 1);
-    }
-    else {
-      EEPROM.write(1, 0);
-      delay(2000); //maximum time between resets
-      EEPROM.write(1, 1);
     }
     
     wifiManager.autoConnect();

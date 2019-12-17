@@ -46,7 +46,7 @@ void setup()
 
     // WiFi stuffs
     WiFiManager wifiManager;
-    
+
     if(digitalRead(resetSwitch) == LOW) { //reset
       bool ledState = true;
       Serial.println("resetting wifi...");
@@ -57,8 +57,10 @@ void setup()
       }
       wifiManager.resetSettings();
     }
-    
-    wifiManager.autoConnect();
+
+    String apName = String("lightbox" + String(ESP.getChipId()));
+    Serial.println("apName = " + apName);
+    wifiManager.autoConnect(apName.c_str());
     ip = WiFi.localIP();
     Serial.println(ip);
 

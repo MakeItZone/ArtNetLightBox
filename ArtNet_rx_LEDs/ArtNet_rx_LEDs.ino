@@ -1,3 +1,6 @@
+#include <FS.h>
+#include <ArduinoJson.h>
+
 #include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library
 
 #include <DNSServer.h>            //Local DNS Server used for redirecting all requests to the configuration portal
@@ -20,16 +23,59 @@ const int Bin = 4; //blue intake channel
 
 const int resetSwitch = 5;
 
+bool shouldSaveConfig = false; //flag for saving data
+
 // IP stuffs
 IPAddress ip;
 
 ArtnetReceiver artnet;
-const uint32_t universe1 = 1;
+char universeChar[6] = "1";
+uint16_t universe = 1; //artnet universe
 //const uint32_t universe2 = 2;
 
-void callback(uint8_t* data, uint16_t size)
+void artNetCallback(uint8_t* data, uint16_t size)
 {
     // you can also use pre-defined callbacks
+}
+
+//callback notifying us of the need to save config
+void saveConfigCallback () {
+  Serial.println("Should save config");
+  shouldSaveConfig = true;
+}
+
+void readConfigFile() {
+  Serial.println("mounting FS...");
+
+  if (SPIFFS.begin()) {
+    Serial.println("mounted file system");
+    if (SPIFFS.exists("/config.json")) {
+      //file exists, reading and loading
+      Serial.println("reading config file");
+      File configFile = SPIFFS.open("/config.json", "r");
+      if (configFile) {
+        Serial.println("opened config file");
+        size_t size = configFile.size();
+        // Allocate a buffer to store contents of the file.
+        std::unique_ptr<char[]> buf(new char[size]);
+
+        configFile.readBytes(buf.get(), size);
+        DynamicJsonBuffer jsonBuffer;
+        JsonObject& json = jsonBuffer.parseObject(buf.get());
+        json.printTo(Serial);
+        if (json.success()) {
+          Serial.println("\nparsed json");
+          strcpy(universeChar, json["universe"]);
+          universe = atoi(universeChar);
+        } else {
+          Serial.println("failed to load json config");
+        }
+      }
+    }
+  } else {
+    Serial.println("failed to mount FS");
+  }
+  //end read
 }
 
 void setup()
@@ -44,8 +90,13 @@ void setup()
     Serial.begin(115200);
     Serial.println();
 
+    readConfigFile();
+
     // WiFi stuffs
+    WiFiManagerParameter custom_universe("universe", "artnet universe", universeChar, 6);
     WiFiManager wifiManager;
+    wifiManager.setSaveConfigCallback(saveConfigCallback);
+    wifiManager.addParameter(&custom_universe);
 
     if(digitalRead(resetSwitch) == LOW) { //reset
       bool ledState = true;
@@ -61,16 +112,35 @@ void setup()
     String apName = String("lightbox" + String(ESP.getChipId()));
     Serial.println("apName = " + apName);
     wifiManager.autoConnect(apName.c_str());
+
+    strcpy(universeChar, custom_universe.getValue());
+    if (shouldSaveConfig) {
+    Serial.println("saving config");
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject& json = jsonBuffer.createObject();
+    json["universe"] = universeChar;
+
+    File configFile = SPIFFS.open("/config.json", "w");
+    if (!configFile) {
+      Serial.println("failed to open config file for writing");
+    }
+
+    json.printTo(Serial);
+    json.printTo(configFile);
+    configFile.close();
+    //end save
+  }
+    
     ip = WiFi.localIP();
     Serial.println(ip);
 
     artnet.begin();
 
     // if Artnet packet comes to this universe, this function (lambda) is called
-    artnet.subscribe(universe1, [&](uint8_t* data, uint16_t size)
+    artnet.subscribe(universe, [&](uint8_t* data, uint16_t size)
     {
         Serial.print("lambda : artnet data (universe : ");
-        Serial.print(universe1);
+        Serial.print(universe);
         Serial.println(") = ");
         
         analogWrite(ledOnboard, data[ledOnboardIn]); //write to LEDs
@@ -86,7 +156,7 @@ void setup()
     });
 
     //you can also use pre-defined callbacks
-    //artnet.subscribe(universe2, callback);
+    //artnet.subscribe(universe2, artNetCallback);
 }
 
 void loop()

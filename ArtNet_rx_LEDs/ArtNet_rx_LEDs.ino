@@ -12,14 +12,16 @@
 
 #include <Artnet.h>
 
+const int pwmMax = 255;
+
 const int ledOnboard = 0; //onboard LED pin
-const int ledOnboardIn = 1; //onboard LED intake channel
+const int ledOnboardIn = 0; //onboard LED intake channel
 const int Rled = 12; //red led pin
-const int Rin = 2; //red intake channel
+const int Rin = 1; //red intake channel
 const int Gled = 13; //green led pin
-const int Gin = 3; //green intake channel
+const int Gin = 2; //green intake channel
 const int Bled = 14; //blue led pin
-const int Bin = 4; //blue intake channel
+const int Bin = 3; //blue intake channel
 
 const int resetSwitch = 5;
 
@@ -85,7 +87,7 @@ void setup()
     pinMode (Rled, OUTPUT);
     pinMode (Gled, OUTPUT);
     pinMode (Bled, OUTPUT);
-    analogWriteRange(255);
+    analogWriteRange(pwmMax);
     
     Serial.begin(115200);
     Serial.println();
@@ -93,10 +95,12 @@ void setup()
     readConfigFile();
 
     // WiFi stuffs
-    WiFiManagerParameter custom_universe("universe", "artnet universe", universeChar, 6);
+    WiFiManagerParameter artNetUniverse("universe", "artnet universe", universeChar, 6);
+    WiFiManagerParameter artNetUniverseLabel("<p>Art-Net universe</p>");
     WiFiManager wifiManager;
     wifiManager.setSaveConfigCallback(saveConfigCallback);
-    wifiManager.addParameter(&custom_universe);
+    wifiManager.addParameter(&artNetUniverseLabel);
+    wifiManager.addParameter(&artNetUniverse);
 
     if(digitalRead(resetSwitch) == LOW) { //reset
       bool ledState = true;
@@ -113,7 +117,7 @@ void setup()
     Serial.println("apName = " + apName);
     wifiManager.autoConnect(apName.c_str());
 
-    strcpy(universeChar, custom_universe.getValue());
+    strcpy(universeChar, artNetUniverse.getValue());
     if (shouldSaveConfig) {
     Serial.println("saving config");
     DynamicJsonBuffer jsonBuffer;
@@ -143,16 +147,16 @@ void setup()
         Serial.print(universe);
         Serial.println(") = ");
         
-        analogWrite(ledOnboard, data[ledOnboardIn]); //write to LEDs
+        analogWrite(ledOnboard, pwmMax - data[ledOnboardIn]); //write to LEDs
         analogWrite(Rled, data[Rin]);
         analogWrite(Gled, data[Gin]);
         analogWrite(Bled, data[Bin]);
         
         for (size_t i = 0; i < 4; ++i) //the 4 on this line is how many channels are sent to the serial monitor, you can change it to be whatever you want, but if it is too big everything will grind to a halt.
         {
-            Serial.print(i); Serial.print(","); Serial.print(data[i]); Serial.print(",");
+            //Serial.print(i); Serial.print(","); Serial.print(data[i]); Serial.print(",");
         }
-        Serial.println();
+        //Serial.println();
     });
 
     //you can also use pre-defined callbacks

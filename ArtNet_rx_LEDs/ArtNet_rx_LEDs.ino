@@ -14,14 +14,14 @@
 
 const int pwmMax = 255;
 
-const int ledOnboard = 0; //onboard LED pin
-const int ledOnboardIn = 0; //onboard LED intake channel
-const int Rled = 12; //red led pin
-const int Rin = 1; //red intake channel
-const int Gled = 13; //green led pin
-const int Gin = 2; //green intake channel
-const int Bled = 14; //blue led pin
-const int Bin = 3; //blue intake channel
+int ledOnboard = 0; //onboard LED pin
+int ledOnboardIn = 0; //onboard LED intake channel
+int Rled = 12; //red led pin
+int Rin = 1; //red intake channel
+int Gled = 13; //green led pin
+int Gin = 2; //green intake channel
+int Bled = 14; //blue led pin
+int Bin = 3; //blue intake channel
 
 const int resetSwitch = 5;
 
@@ -69,6 +69,14 @@ void readConfigFile() {
           Serial.println("\nparsed json");
           strcpy(universeChar, json["universe"]);
           universe = atoi(universeChar);
+          ledOnboard = json["ledOnboard"];
+          ledOnboardIn = json["ledOnboardIn"];
+          Rled = json["Rled"];
+          Rin = json["Rin"];
+          Gled = json["Gled"];
+          Gin = json["Gin"];
+          Bled = json["Bled"];
+          Bin = json["Bin"];
         } else {
           Serial.println("failed to load json config");
         }
@@ -117,12 +125,20 @@ void setup()
     Serial.println("apName = " + apName);
     wifiManager.autoConnect(apName.c_str());
 
-    strcpy(universeChar, artNetUniverse.getValue());
+    strcpy(universeChar, artNetUniverse.getValue()); //start save
     if (shouldSaveConfig) {
     Serial.println("saving config");
     DynamicJsonBuffer jsonBuffer;
     JsonObject& json = jsonBuffer.createObject();
     json["universe"] = universeChar;
+    json["ledOnboard"] = ledOnboard;
+    json["ledOnboardIn"] = ledOnboardIn;
+    json["Rled"] = Rled;
+    json["Rin"] = Rin;
+    json["Gled"] = Gled;
+    json["Gin"] = Gin;
+    json["Bled"] = Bled;
+    json["Bin"] = Bin;
 
     File configFile = SPIFFS.open("/config.json", "w");
     if (!configFile) {

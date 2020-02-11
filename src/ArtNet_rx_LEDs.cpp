@@ -41,7 +41,7 @@ IPAddress ip;
 ArtnetReceiver artnet;
 char universeChar[6] = "1";
 uint16_t universe = 1; //artnet universe
-//const uint32_t universe2 = 2;
+const uint32_t universe2 = 2;
 
 void artNetCallback(uint8_t* data, uint16_t size)
 {
@@ -96,8 +96,7 @@ void readConfigFile() {
   //end read
 }
 
-void setup()
-{
+void setup() {
     pinMode (resetSwitch, INPUT_PULLUP);
     pinMode (ledOnboard, OUTPUT); //led output declarations
     pinMode (Rled, OUTPUT);
@@ -181,7 +180,7 @@ void setup()
         for (size_t i = 0; i < 4; ++i) //the 4 on this line is how many channels are sent to the serial monitor, you can change it to be whatever you want, but if it is too big everything will grind to a halt.
         {
             //Serial.print(i); Serial.print(","); Serial.print(data[i]); Serial.print(",");
-        }
+        };
         //Serial.println();
     });
 
@@ -189,7 +188,7 @@ void setup()
     //artnet.subscribe(universe2, artNetCallback);
 }
 
-void loop()
-{
+
+void loop(){
     artnet.parse(); // check if artnet packet has come and execute callback
 }

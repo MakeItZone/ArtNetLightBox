@@ -2,10 +2,6 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"name": "200211-102003-huzzah",
-			"path": "/Users/julian/Documents/PlatformIO/Projects/200211-102003-huzzah"
 		}
 	],
 	"settings": {}

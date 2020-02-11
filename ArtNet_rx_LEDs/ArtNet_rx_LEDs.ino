@@ -15,13 +15,21 @@
 const int pwmMax = 255;
 
 int ledOnboard = 0; //onboard LED pin
+char ledOnboardChar[3]; //ditto char
 int ledOnboardIn = 0; //onboard LED intake channel
+char ledOnboardInChar[4];
 int Rled = 12; //red led pin
+char RledChar[3];
 int Rin = 1; //red intake channel
+char RinChar[4];
 int Gled = 13; //green led pin
+char GledChar[3];
 int Gin = 2; //green intake channel
+char GinChar[4];
 int Bled = 14; //blue led pin
+char BledChar[3];
 int Bin = 3; //blue intake channel
+char BinChar[4];
 
 const int resetSwitch = 5;
 
@@ -105,6 +113,8 @@ void setup()
     // WiFi stuffs
     WiFiManagerParameter artNetUniverse("universe", "artnet universe", universeChar, 6);
     WiFiManagerParameter artNetUniverseLabel("<p>Art-Net universe</p>");
+    WiFiManagerParameter RledPin("Rled", "Red LED pin(default 12)", RledChar, 6);
+    WiFiManagerParameter RledPinLabel("<p>Red LED pin</p>");
     WiFiManager wifiManager;
     wifiManager.setSaveConfigCallback(saveConfigCallback);
     wifiManager.addParameter(&artNetUniverseLabel);
@@ -119,7 +129,7 @@ void setup()
         delay(500);
       }
       wifiManager.resetSettings();
-    }
+    
 
     String apName = String("lightbox" + String(ESP.getChipId()));
     Serial.println("apName = " + apName);

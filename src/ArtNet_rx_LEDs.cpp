@@ -128,7 +128,7 @@ void setup() {
         delay(500);
       }
       wifiManager.resetSettings();
-    
+    }
 
     String apName = String("lightbox" + String(ESP.getChipId()));
     Serial.println("apName = " + apName);

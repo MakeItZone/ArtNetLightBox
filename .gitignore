@@ -33,3 +33,6 @@
 
 # OS files
 .DS_Store
+
+# platform io
+.pio/*

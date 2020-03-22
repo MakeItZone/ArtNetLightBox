@@ -7,3 +7,6 @@ The code is in two main branches:
 - a sender experiment: for sending ArtNET/DMX data from the ESP to a PC (eg QLC+)
 - a receiver experiment: for receiving and displaying ArtNET/DMX channels as light
 
+# Notes
+
+[MidiMonster](https://midimonster.net/) could be a very useful utility.

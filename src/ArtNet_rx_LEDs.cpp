@@ -19,7 +19,7 @@ char ledOnboardChar[3]; //ditto char
 int ledOnboardIn = 0; //onboard LED intake channel
 char ledOnboardInChar[4];
 int Rled = 12; //red led pin
-char RledChar[3];
+char RledChar[3] = "12";
 int Rin = 1; //red intake channel
 char RinChar[4];
 int Gled = 13; //green led pin
@@ -75,8 +75,7 @@ void readConfigFile() {
         json.printTo(Serial);
         if (json.success()) {
           Serial.println("\nparsed json");
-          strcpy(universeChar, json["universe"]);
-          universe = atoi(universeChar);
+          universe =  json["universe"];
           ledOnboard = json["ledOnboard"];
           ledOnboardIn = json["ledOnboardIn"];
           Rled = json["Rled"];
@@ -112,12 +111,15 @@ void setup() {
     // WiFi stuffs
     WiFiManagerParameter artNetUniverse("universe", "artnet universe", universeChar, 6);
     WiFiManagerParameter artNetUniverseLabel("<p>Art-Net universe</p>");
-    WiFiManagerParameter RledPin("Rled", "Red LED pin(default 12)", RledChar, 6);
-    WiFiManagerParameter RledPinLabel("<p>Red LED pin</p>");
+    WiFiManagerParameter RledIn("Rin", "Red art-net channel(default 1)", RinChar, 6);
+    WiFiManagerParameter RledInLabel("<p>Red art-net channel</p>");
     WiFiManager wifiManager;
     wifiManager.setSaveConfigCallback(saveConfigCallback);
     wifiManager.addParameter(&artNetUniverseLabel);
     wifiManager.addParameter(&artNetUniverse);
+    wifiManager.addParameter(&RledInLabel);
+    wifiManager.addParameter(&RledIn);
+
 
     if(digitalRead(resetSwitch) == LOW) { //reset
       bool ledState = true;
@@ -135,19 +137,20 @@ void setup() {
     wifiManager.autoConnect(apName.c_str());
 
     strcpy(universeChar, artNetUniverse.getValue()); //start save
+    strcpy(RinChar, RledIn.getValue());
     if (shouldSaveConfig) {
     Serial.println("saving config");
     DynamicJsonBuffer jsonBuffer;
     JsonObject& json = jsonBuffer.createObject();
     json["universe"] = universeChar;
     json["ledOnboard"] = ledOnboard;
-    json["ledOnboardIn"] = ledOnboardIn;
+    json["ledOnboardIn"] = Rin - 1;
     json["Rled"] = Rled;
     json["Rin"] = Rin;
     json["Gled"] = Gled;
-    json["Gin"] = Gin;
+    json["Gin"] = Rin + 1;
     json["Bled"] = Bled;
-    json["Bin"] = Bin;
+    json["Bin"] = Rin + 2;
 
     File configFile = SPIFFS.open("/config.json", "w");
     if (!configFile) {
@@ -162,6 +165,12 @@ void setup() {
     
     ip = WiFi.localIP();
     Serial.println(ip);
+
+    Serial.println("config var");
+    Serial.println(Rin);
+    Serial.println(Gin);
+    Serial.println(Bin);
+    Serial.println(ledOnboardIn);
 
     artnet.begin();
 
@@ -183,12 +192,28 @@ void setup() {
         };
         //Serial.println();
     });
+    Serial.println("config var");
+    Serial.println(Rin);
+    Serial.println(Gin);
+    Serial.println(Bin);
+    Serial.println(ledOnboardIn);
 
     //you can also use pre-defined callbacks
     //artnet.subscribe(universe2, artNetCallback);
 }
 
+bool doOnce = false;
 
 void loop(){
+  if (!doOnce)
+  {
+    doOnce = true;
+    Serial.println(universe);
+    Serial.println(Rin);
+    Serial.println(Gin);
+    Serial.println(Bin);
+    Serial.println(ledOnboardIn);
+  }
+  
     artnet.parse(); // check if artnet packet has come and execute callback
 }

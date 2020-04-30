@@ -172,6 +172,26 @@ void setup() {
     Serial.println(Bin);
     Serial.println(ledOnboardIn);
 
+    Serial.println("LED test");  //check LEDs
+    delay(1000);
+    analogWrite(ledOnboard, 100);
+    delay(1000);
+    analogWrite(ledOnboard, 0);
+    delay(1000);
+    analogWrite(Rled, 100);
+    delay(1000);
+    analogWrite(Rled, 0);
+    delay(1000);
+    analogWrite(Gled, 100);
+    delay(1000);
+    analogWrite(Gled, 0);
+    delay(1000);
+    analogWrite(Bled, 100);
+    delay(1000);
+    analogWrite(Bled, 0);
+    delay(1000);
+    Serial.println("LED test done");  //LED check done
+
     artnet.begin();
 
     // if Artnet packet comes to this universe, this function (lambda) is called

@@ -138,6 +138,7 @@ void setup() {
 
     strcpy(universeChar, artNetUniverse.getValue()); //start save
     strcpy(RinChar, RledIn.getValue());
+    Rin = atoi(RinChar);
     if (shouldSaveConfig) {
     Serial.println("saving config");
     DynamicJsonBuffer jsonBuffer;

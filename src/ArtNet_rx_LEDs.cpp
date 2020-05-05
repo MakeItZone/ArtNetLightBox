@@ -65,25 +65,22 @@ void readConfigFile() {
       File configFile = SPIFFS.open("/config.json", "r");
       if (configFile) {
         Serial.println("opened config file");
-        size_t size = configFile.size();
-        // Allocate a buffer to store contents of the file.
-        std::unique_ptr<char[]> buf(new char[size]);
+ 
+        DynamicJsonDocument jsonDoc(1024);
+        DeserializationError error = deserializeJson(jsonDoc, configFile);
 
-        configFile.readBytes(buf.get(), size);
-        DynamicJsonBuffer jsonBuffer;
-        JsonObject& json = jsonBuffer.parseObject(buf.get());
-        json.printTo(Serial);
-        if (json.success()) {
+        if (!error) {
           Serial.println("\nparsed json");
-          universe =  json["universe"];
-          ledOnboard = json["ledOnboard"];
-          ledOnboardIn = json["ledOnboardIn"];
-          Rled = json["Rled"];
-          Rin = json["Rin"];
-          Gled = json["Gled"];
-          Gin = json["Gin"];
-          Bled = json["Bled"];
-          Bin = json["Bin"];
+          serializeJson(jsonDoc, Serial);
+          universe =  jsonDoc["universe"];
+          ledOnboard = jsonDoc["ledOnboard"];
+          ledOnboardIn = jsonDoc["ledOnboardIn"];
+          Rled = jsonDoc["Rled"];
+          Rin = jsonDoc["Rin"];
+          Gled = jsonDoc["Gled"];
+          Gin = jsonDoc["Gin"];
+          Bled = jsonDoc["Bled"];
+          Bin = jsonDoc["Bin"];
         } else {
           Serial.println("failed to load json config");
         }
@@ -139,28 +136,27 @@ void setup() {
     strcpy(universeChar, artNetUniverse.getValue()); //start save
     strcpy(RinChar, RledIn.getValue());
     if (shouldSaveConfig) {
-    Serial.println("saving config");
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject& json = jsonBuffer.createObject();
-    json["universe"] = universeChar;
-    json["ledOnboard"] = ledOnboard;
-    json["ledOnboardIn"] = Rin - 1;
-    json["Rled"] = Rled;
-    json["Rin"] = Rin;
-    json["Gled"] = Gled;
-    json["Gin"] = Rin + 1;
-    json["Bled"] = Bled;
-    json["Bin"] = Rin + 2;
+      Serial.println("saving config");
+      DynamicJsonDocument jsonDoc(1024);
+      jsonDoc["universe"] = universeChar;
+      jsonDoc["ledOnboard"] = ledOnboard;
+      jsonDoc["ledOnboardIn"] = Rin - 1;
+      jsonDoc["Rled"] = Rled;
+      jsonDoc["Rin"] = Rin;
+      jsonDoc["Gled"] = Gled;
+      jsonDoc["Gin"] = Rin + 1;
+      jsonDoc["Bled"] = Bled;
+      jsonDoc["Bin"] = Rin + 2;
 
-    File configFile = SPIFFS.open("/config.json", "w");
-    if (!configFile) {
-      Serial.println("failed to open config file for writing");
-    }
+      File configFile = SPIFFS.open("/config.json", "w");
+      if (!configFile) {
+        Serial.println("failed to open config file for writing");
+      }
 
-    json.printTo(Serial);
-    json.printTo(configFile);
-    configFile.close();
-    //end save
+      serializeJson(jsonDoc, Serial);
+      serializeJson(jsonDoc, configFile);
+      configFile.close();
+      //end save
   }
     
     ip = WiFi.localIP();

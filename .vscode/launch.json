@@ -12,8 +12,8 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "c:/Users/kyren/Documents/GitHub/ArtNetLightBox/.pio/build/huzzah/firmware.elf",
-            "toolchainBinDir": "C:/Users/kyren/.platformio/packages/toolchain-xtensa/bin",
+            "executable": "/Users/julian/Documents/PlatformIO/Projects/ArtNetLightBox/.pio/build/huzzah/firmware.elf",
+            "toolchainBinDir": "/Users/julian/.platformio/packages/toolchain-xtensa/bin",
             "preLaunchTask": {
                 "type": "PlatformIO",
                 "task": "Pre-Debug"
@@ -24,8 +24,8 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "c:/Users/kyren/Documents/GitHub/ArtNetLightBox/.pio/build/huzzah/firmware.elf",
-            "toolchainBinDir": "C:/Users/kyren/.platformio/packages/toolchain-xtensa/bin",
+            "executable": "/Users/julian/Documents/PlatformIO/Projects/ArtNetLightBox/.pio/build/huzzah/firmware.elf",
+            "toolchainBinDir": "/Users/julian/.platformio/packages/toolchain-xtensa/bin",
             "internalConsoleOptions": "openOnSessionStart"
         }
     ]

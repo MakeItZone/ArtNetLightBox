@@ -1,5 +1,6 @@
+// Main file
+
 #include <FS.h>
-#include <ArduinoJson.h>
 
 #include <ESP8266WiFi.h>          //ESP8266 Core WiFi Library
 
@@ -10,26 +11,10 @@
 #include <SoftwareSerial.h>
 #include <EEPROM.h>
 
-#include <Artnet.h>
+#include "RGBLedDriver.h"
+#include "ArtNetInterface.h"
 
-const int pwmMax = 255;
-
-int ledOnboard = 0; //onboard LED pin
-char ledOnboardChar[3]; //ditto char
-int ledOnboardIn = 0; //onboard LED intake channel
-char ledOnboardInChar[4];
-int Rled = 12; //red led pin
-char RledChar[3] = "12";
-int Rin = 1; //red intake channel
-char RinChar[4];
-int Gled = 13; //green led pin
-char GledChar[3];
-int Gin = 2; //green intake channel
-char GinChar[4];
-int Bled = 14; //blue led pin
-char BledChar[3];
-int Bin = 3; //blue intake channel
-char BinChar[4];
+#include <ArduinoJson.h>
 
 const int resetSwitch = 5;
 
@@ -38,15 +23,9 @@ bool shouldSaveConfig = false; //flag for saving data
 // IP stuffs
 IPAddress ip;
 
-ArtnetReceiver artnet;
-char universeChar[6] = "1";
-uint16_t universe = 1; //artnet universe
-const uint32_t universe2 = 2;
-
-void artNetCallback(uint8_t* data, uint16_t size)
-{
-    // you can also use pre-defined callbacks
-}
+//stack space is limited, so use the heap when possible
+RGBLedDriver* rgbLeds = new(RGBLedDriver); // want to store this on the heap, not the stack.
+                                    // the program never exits, so no delete.
 
 //callback notifying us of the need to save config
 void saveConfigCallback () {

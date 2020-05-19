@@ -27,7 +27,7 @@ char ledOnboardInChar[4];
 int Rled = 12; //red led pin
 char RledChar[3] = "12";
 int Rin = 1; //red intake channel
-char RinChar[4];
+char RinChar[6] = "1";
 int Gled = 13; //green led pin
 char GledChar[3];
 int Gin = 2; //green intake channel
@@ -79,10 +79,14 @@ void readConfigFile() {
           Serial.println("\nparsed json");
           serializeJson(jsonDoc, Serial);
           universe =  jsonDoc["universe"];
+          itoa(universe, universeChar, 10);
           ledOnboard = jsonDoc["ledOnboard"];
           ledOnboardIn = jsonDoc["ledOnboardIn"];
           Rled = jsonDoc["Rled"];
           Rin = jsonDoc["Rin"];
+          itoa(Rin, RinChar, 10);
+          Serial.println();
+          Serial.println((const char *)jsonDoc["Rin"]);
           Gled = jsonDoc["Gled"];
           Gin = jsonDoc["Gin"];
           Bled = jsonDoc["Bled"];
@@ -141,11 +145,14 @@ void setup() {
 
     strcpy(universeChar, artNetUniverse.getValue()); //start save
     strcpy(RinChar, RledIn.getValue());
+    Serial.println("atoi");
+    Serial.println(Rin);
     Rin = atoi(RinChar);
+    Serial.println(Rin);
     if (shouldSaveConfig) {
       Serial.println("saving config");
       DynamicJsonDocument jsonDoc(1024);
-      jsonDoc["universe"] = universeChar;
+      jsonDoc["universe"] = universe;
       jsonDoc["ledOnboard"] = ledOnboard;
       jsonDoc["ledOnboardIn"] = Rin - 1;
       jsonDoc["Rled"] = Rled;
@@ -205,11 +212,11 @@ void setup() {
     ip = WiFi.localIP();
     Serial.println(ip);
 
-    Serial.println("config var");
+    Serial.println("config var - end of setup");
     Serial.println(Rin);
-    Serial.println(Gin);
-    Serial.println(Bin);
-    Serial.println(ledOnboardIn);
+    //Serial.println(Gin);
+    //Serial.println(Bin);
+    //Serial.println(ledOnboardIn);
 
     Serial.println("LED test");  //check LEDs
     delay(1000);
@@ -251,11 +258,6 @@ void setup() {
         };
         //Serial.println();
     });
-    Serial.println("config var");
-    Serial.println(Rin);
-    Serial.println(Gin);
-    Serial.println(Bin);
-    Serial.println(ledOnboardIn);
 
     //you can also use pre-defined callbacks
     //artnet.subscribe(universe2, artNetCallback);
@@ -267,15 +269,16 @@ void loop(){
   if (!doOnce)
   {
     doOnce = true;
-    Serial.println(universe);
+    Serial.println("config - doOnce");
+    //Serial.println(universe);
     Serial.println(Rin);
-    Serial.println(Rled);
-    Serial.println(Gin);
-    Serial.println(Gled);
-    Serial.println(Bin);
-    Serial.println(Gled);
-    Serial.println(ledOnboardIn);
-    Serial.println(ledOnboard);
+    // Serial.println(Rled);
+    // Serial.println(Gin);
+    // Serial.println(Gled);
+    // Serial.println(Bin);
+    // Serial.println(Gled);
+    // Serial.println(ledOnboardIn);
+    // Serial.println(ledOnboard);
   }
   
     artnet.parse(); // check if artnet packet has come and execute callback
